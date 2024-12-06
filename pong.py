@@ -263,6 +263,7 @@ class FuzzyPlayer(Player):
         self.velocity['right'] = fuzz.trimf(self.velocity.universe, [2, 10, 15])
         self.velocity['fast_right'] = fuzz.trimf(self.velocity.universe, [15, 20, 20])
 
+        # Setup rules
         rules = [
             # if y_dist close
             fuzzcontrol.Rule(self.x_dist['far_left'] & self.y_dist['close'], self.velocity['fast_right']),
@@ -315,7 +316,7 @@ class FuzzyPlayerTsk(Player):
         self.y_universe = np.arange(0, 401, 1)
         self.velocity_universe = np.arange(-20, 21, 1)
 
-        # Membership functions for x
+        # Membership functions for x_dist
         self.x_mf = {
             "far_left": fuzz.trimf(self.x_universe, [-800, -800, 0]),
             "left": fuzz.trimf(self.x_universe, [-600, -400, 0]),
@@ -324,7 +325,7 @@ class FuzzyPlayerTsk(Player):
             "far_right": fuzz.trimf(self.x_universe, [0, 800, 800])
         }
     
-        # Membership functions for y
+        # Membership functions for y_dist
         self.y_mf = {
             "far": fuzz.trimf(self.y_universe, [200, 400, 400]),
             "medium": fuzz.trimf(self.y_universe, [0, 200, 400]),
@@ -360,6 +361,7 @@ class FuzzyPlayerTsk(Player):
         x_vals = {name: fuzz.interp_membership(self.x_universe, mf, x_diff) for name, mf in self.x_mf.items()}
         y_vals = {name: fuzz.interp_membership(self.y_universe, mf, y_diff) for name, mf in self.y_mf.items()}
 
+        # Setup rules
         activations = {
             "fast_left": max(
                 min(x_vals["right"], y_vals["far"]), 
@@ -416,6 +418,6 @@ class FuzzyPlayerTsk(Player):
 
 if __name__ == "__main__":
     # game = PongGame(800, 400, NaiveOponent, HumanPlayer)
-    # game = PongGame(800, 400, NaiveOponent, FuzzyPlayer)
-    game = PongGame(800, 400, NaiveOponent, FuzzyPlayerTsk)
+    game = PongGame(800, 400, NaiveOponent, FuzzyPlayer)
+    # game = PongGame(800, 400, NaiveOponent, FuzzyPlayerTsk)
     game.run()
