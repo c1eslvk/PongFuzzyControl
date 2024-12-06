@@ -240,18 +240,18 @@ class FuzzyPlayer(Player):
         self.setup_mamdani()
 
     def setup_mamdani(self):
-        self.x_dist = fuzzcontrol.Antecedent(np.arange(-800, 801, 10), 'x_dist')
-        self.y_dist = fuzzcontrol.Antecedent(np.arange(0, 401, 10), 'y_dist')
+        self.x_dist = fuzzcontrol.Antecedent(np.arange(-800, 801, 2), 'x_dist')
+        self.y_dist = fuzzcontrol.Antecedent(np.arange(0, 401, 1), 'y_dist')
         self.velocity = fuzzcontrol.Consequent(np.arange(-20, 21, 1), 'velocity')
 
-        # Membership functions for x_dist (ball position horizontally)
+        # Membership functions for x_dist
         self.x_dist['far_left'] = fuzz.trimf(self.x_dist.universe, [-800, -800, 0])
         self.x_dist['left'] = fuzz.trimf(self.x_dist.universe, [-600, -400, 0])
         self.x_dist['center'] = fuzz.trimf(self.x_dist.universe, [-20, 0, 20])
         self.x_dist['right'] = fuzz.trimf(self.x_dist.universe, [0, 400, 600])
         self.x_dist['far_right'] = fuzz.trimf(self.x_dist.universe, [0, 800, 800])
 
-        # Membership functions for y_dist (ball position vertically)
+        # Membership functions for y_dist
         self.y_dist['far'] = fuzz.trimf(self.y_dist.universe, [200, 400, 400])
         self.y_dist['medium'] = fuzz.trimf(self.y_dist.universe, [0, 200, 400])
         self.y_dist['close'] = fuzz.trimf(self.y_dist.universe, [0, 0, 200])
@@ -311,10 +311,11 @@ class FuzzyPlayerTsk(Player):
         self.setup_tsk()
 
     def setup_tsk(self):
-        self.x_universe = np.arange(-800, 801, 1)
+        self.x_universe = np.arange(-800, 801, 2)
         self.y_universe = np.arange(0, 401, 1)
         self.velocity_universe = np.arange(-20, 21, 1)
 
+        # Membership functions for x
         self.x_mf = {
             "far_left": fuzz.trimf(self.x_universe, [-800, -800, 0]),
             "left": fuzz.trimf(self.x_universe, [-600, -400, 0]),
@@ -323,12 +324,14 @@ class FuzzyPlayerTsk(Player):
             "far_right": fuzz.trimf(self.x_universe, [0, 800, 800])
         }
     
+        # Membership functions for y
         self.y_mf = {
             "far": fuzz.trimf(self.y_universe, [200, 400, 400]),
             "medium": fuzz.trimf(self.y_universe, [0, 200, 400]),
             "close": fuzz.trimf(self.y_universe, [0, 0, 200])
         }
 
+        # Membership functions for velocity
         self.velocity_mf = {
             "fast_left": fuzz.trimf(self.velocity_universe, [-20, -20, -15]),
             "left": fuzz.trimf(self.velocity_universe, [-15, -10, -2]),
@@ -339,12 +342,13 @@ class FuzzyPlayerTsk(Player):
 
         self.visualize_mfs()
 
+        # Calculating velocity
         self.velocity_fx = {
-            "fast_left": lambda x_diff, y_diff: -2 * (abs(x_diff) + abs(y_diff)),
+            "fast_left": lambda x_diff, y_diff: -1 * (abs(x_diff) + abs(y_diff)),
             "left": lambda x_diff, y_diff: -1 * (abs(x_diff) + abs(y_diff)),
             "stop": lambda x_diff, y_diff: 0,
             "right": lambda x_diff, y_diff: 1 * (abs(x_diff) + abs(y_diff)),
-            "fast_right": lambda x_diff, y_diff: 2 * (abs(x_diff) + abs(y_diff))
+            "fast_right": lambda x_diff, y_diff: 1 * (abs(x_diff) + abs(y_diff))
         }
 
     def act(self, x_diff: int, y_diff: int):
@@ -352,6 +356,7 @@ class FuzzyPlayerTsk(Player):
         self.move(self.racket.rect.x + velocity)
 
     def make_decision(self, x_diff: int, y_diff: int):
+        # Calculate degree of membership
         x_vals = {name: fuzz.interp_membership(self.x_universe, mf, x_diff) for name, mf in self.x_mf.items()}
         y_vals = {name: fuzz.interp_membership(self.y_universe, mf, y_diff) for name, mf in self.y_mf.items()}
 
@@ -383,6 +388,7 @@ class FuzzyPlayerTsk(Player):
                 )
         }
 
+        # Calculate output using weighted average
         numerator = sum(activations[rule] * self.velocity_fx[rule](x_diff, y_diff) for rule in activations)
         denominator = sum(activations[rule] for rule in activations)
         
@@ -410,6 +416,6 @@ class FuzzyPlayerTsk(Player):
 
 if __name__ == "__main__":
     # game = PongGame(800, 400, NaiveOponent, HumanPlayer)
-    game = PongGame(800, 400, NaiveOponent, FuzzyPlayer)
-    # game = PongGame(800, 400, NaiveOponent, FuzzyPlayerTsk)
+    # game = PongGame(800, 400, NaiveOponent, FuzzyPlayer)
+    game = PongGame(800, 400, NaiveOponent, FuzzyPlayerTsk)
     game.run()
