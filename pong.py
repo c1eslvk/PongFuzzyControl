@@ -230,9 +230,6 @@ class HumanPlayer(Player):
 # DO NOT MODIFY CODE ABOVE THIS LINE
 # ----------------------------------
 
-# import numpy as np
-# import matplotlib.pyplot as plt
-
 
 class FuzzyPlayer(Player):
     def __init__(self, racket: Racket, ball: Ball, board: Board):
@@ -418,6 +415,6 @@ class FuzzyPlayerTsk(Player):
 
 if __name__ == "__main__":
     # game = PongGame(800, 400, NaiveOponent, HumanPlayer)
-    game = PongGame(800, 400, NaiveOponent, FuzzyPlayer)
-    # game = PongGame(800, 400, NaiveOponent, FuzzyPlayerTsk)
+    # game = PongGame(800, 400, NaiveOponent, FuzzyPlayer)
+    game = PongGame(800, 400, NaiveOponent, FuzzyPlayerTsk)
     game.run()
